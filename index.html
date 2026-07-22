@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TRILHA EAI — Seções e Boxes em Ação</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lexend:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Lexend', 'sans-serif']
+          },
+          colors: {
+            eai: {
+              cream: '#FDFBF7',
+              navy: '#1E293B',
+              navyDeep: '#0F172A',
+              orange: '#EA580C',
+              orangeHover: '#C2410C',
+              amber: '#F59E0B',
+              amberLight: '#FEF3C7',
+              coral: '#E11D48',
+              teal: '#0D9488',
+              indigo: '#4338CA'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- React 18 and Babel Standalone -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Custom CSS animations and smooth styling */
+    body {
+      background-color: #F8FAFC;
+      color: #0F172A;
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+    }
+
+    .font-display {
+      font-family: 'Lexend', sans-serif;
+    }
+
+    /* Soft pulse and shine animations */
+    @keyframes subtlePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+    .animate-subtle-pulse {
+      animation: subtlePulse 3s infinite ease-in-out;
+    }
+
+    .card-transition {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 flex flex-col justify-between text-slate-800 antialiased selection:bg-orange-200">
+
+  <div id="root" class="min-h-screen flex flex-col"></div>
+
+  <script type="text/babel">
+
+    // Full Pedagogy Data Object
+    const PEDAGOGY_DATA = {
+      sections: [
+        {
+          id: 'sec_1',
+          type: 'SEÇÃO',
+          name: 'PARA COMEÇO DE CONVERSA',
+          icon: 'fa-comments',
+          purpose: 'Introduzir o tema do capítulo, despertar interesse, mobilizar conhecimentos prévios e criar um espaço inicial de diálogo, escuta e conexão com as experiências dos participantes.',
+          keywords: ['acolhimento', 'sensibilização', 'conhecimentos prévios', 'diálogo inicial', 'conexão']
+        },
+        {
+          id: 'sec_2',
+          type: 'SEÇÃO',
+          name: 'LÁ VEM HISTÓRIA',
+          icon: 'fa-book-open',
+          purpose: 'Apresentar ou desenvolver a narrativa que funciona como fio condutor do capítulo, contextualizando o tema e mobilizando emoção, imaginação, identificação e curiosidade.',
+          keywords: ['storytelling', 'narrativa', 'contextualização', 'emoção', 'imaginação', 'engajamento']
+        },
+        {
+          id: 'sec_3',
+          type: 'SEÇÃO',
+          name: 'IDEIAS EM AÇÃO!',
+          icon: 'fa-lightbulb',
+          purpose: 'Levar o participante a experimentar, produzir, interagir, criar ou aplicar os conhecimentos por meio de uma atividade prática e participativa.',
+          keywords: ['aprendizagem ativa', 'experimentação', 'participação', 'criação', 'prática', 'aplicação']
+        },
+        {
+          id: 'sec_4',
+          type: 'SEÇÃO',
+          name: 'HORA DE REFLETIR',
+          icon: 'fa-brain',
+          purpose: 'Promover análise, diálogo e reflexão sobre a experiência vivida, permitindo compartilhar percepções, sentimentos, aprendizagens e diferentes pontos de vista.',
+          keywords: ['reflexão', 'diálogo', 'compartilhamento', 'análise', 'escuta', 'construção coletiva']
+        },
+        {
+          id: 'sec_5',
+          type: 'SEÇÃO',
+          name: 'PARA CONTINUAR A CONVERSA...',
+          icon: 'fa-comments-dollar', // substitute readable connected balloon
+          purpose: 'Ampliar e aprofundar a reflexão, favorecendo a síntese do que foi aprendido e a relação entre o conteúdo, a vida cotidiana e outras situações.',
+          keywords: ['aprofundamento', 'síntese', 'metacognição', 'continuidade', 'relação com a vida']
+        },
+        {
+          id: 'sec_6',
+          type: 'SEÇÃO',
+          name: 'UMA HISTÓRIA PUXA A OUTRA',
+          icon: 'fa-route',
+          purpose: 'Dar continuidade ao percurso por meio de novas conexões, narrativas, reflexões ou possibilidades de ação, incentivando a aplicação da aprendizagem para além da atividade realizada.',
+          keywords: ['continuidade', 'conexão', 'reflexão na ação', 'aplicação', 'transformação']
+        }
+      ],
+      boxes: [
+        {
+          id: 'box_1',
+          type: 'BOX',
+          name: 'AÇÃO E REAÇÃO',
+          icon: 'fa-arrows-split-up-and-left',
+          purpose: 'Propor uma ação, escolha ou tomada de decisão e estimular a análise das possíveis consequências, respostas e impactos produzidos.',
+          keywords: ['ação', 'consequência', 'decisão', 'responsabilidade', 'aprendizagem pela experiência']
+        },
+        {
+          id: 'box_2',
+          type: 'BOX',
+          name: 'HORA DE REFLETIR MAIS',
+          icon: 'fa-magnifying-glass-plus',
+          purpose: 'Aprofundar uma reflexão já iniciada, acrescentando novas perguntas, perspectivas ou provocações sobre o tema.',
+          keywords: ['aprofundamento', 'análise', 'novas perspectivas', 'reflexão ampliada']
+        },
+        {
+          id: 'box_3',
+          type: 'BOX',
+          name: 'PARA CONTAR SUA EXPERIÊNCIA',
+          icon: 'fa-user-pen',
+          purpose: 'Convidar o participante a relacionar o tema às próprias vivências e compartilhar experiências, percepções, sentimentos ou aprendizagens.',
+          keywords: ['experiência pessoal', 'memória', 'compartilhamento', 'escuta', 'identificação']
+        },
+        {
+          id: 'box_4',
+          type: 'BOX',
+          name: 'RECADO DO BEM',
+          icon: 'fa-heart',
+          purpose: 'Apresentar uma mensagem positiva, acolhedora, ética ou motivadora, reforçando valores, possibilidades de crescimento e atitudes construtivas.',
+          keywords: ['encorajamento', 'valores', 'acolhimento', 'motivação', 'atitude positiva']
+        },
+        {
+          id: 'box_5',
+          type: 'BOX',
+          name: 'PARA CONHECER MAIS',
+          icon: 'fa-book-bookmark',
+          purpose: 'Oferecer conteúdos, referências, indicações ou informações complementares que permitam ampliar o conhecimento sobre o tema.',
+          keywords: ['ampliação', 'pesquisa', 'referências', 'aprofundamento', 'conhecimento complementar']
+        },
+        {
+          id: 'box_6',
+          type: 'BOX',
+          name: 'VOCABULÁRIO',
+          icon: 'fa-spell-check',
+          purpose: 'Explicar palavras, expressões ou conceitos importantes para facilitar a compreensão do conteúdo e ampliar o repertório do participante.',
+          keywords: ['conceito', 'significado', 'compreensão', 'linguagem', 'ampliação de repertório']
+        }
+      ],
+      scenarios: [
+        {
+          id: 'scen_1',
+          text: 'O professor vai iniciar um novo tema e deseja descobrir o que os estudantes já sabem, o que sentem e quais experiências possuem sobre o assunto.',
+          correct: 'PARA COMEÇO DE CONVERSA',
+          justification: 'Essa seção introduz o tema, ativa conhecimentos prévios e cria um espaço inicial de diálogo e conexão.',
+          options: ['PARA COMEÇO DE CONVERSA', 'LÁ VEM HISTÓRIA', 'PARA CONTAR SUA EXPERIÊNCIA', 'VOCABULÁRIO']
+        },
+        {
+          id: 'scen_2',
+          text: 'Após uma atividade em grupo, o professor deseja que os participantes analisem o que aconteceu, compartilhem percepções e escutem diferentes pontos de vista.',
+          correct: 'HORA DE REFLETIR',
+          justification: 'Essa seção promove análise, diálogo, compartilhamento e reflexão coletiva sobre a experiência vivida.',
+          options: ['HORA DE REFLETIR', 'HORA DE REFLETIR MAIS', 'IDEIAS EM AÇÃO!', 'RECADO DO BEM']
+        },
+        {
+          id: 'scen_3',
+          text: 'Um conceito importante apareceu no texto, mas alguns participantes podem não conhecer seu significado.',
+          correct: 'VOCABULÁRIO',
+          justification: 'Esse box esclarece palavras e conceitos importantes, facilitando a compreensão do conteúdo.',
+          options: ['VOCABULÁRIO', 'PARA CONHECER MAIS', 'AÇÃO E REAÇÃO', 'PARA COMEÇO DE CONVERSA']
+        },
+        {
+          id: 'scen_4',
+          text: 'O professor deseja que os participantes relacionem o tema discutido a uma situação que viveram e compartilhem suas experiências.',
+          correct: 'PARA CONTAR SUA EXPERIÊNCIA',
+          justification: 'Esse box favorece a relação entre o conteúdo e as vivências pessoais, valorizando memória, escuta e compartilhamento.',
+          options: ['PARA CONTAR SUA EXPERIÊNCIA', 'LÁ VEM HISTÓRIA', 'HORA DE REFLETIR', 'UMA HISTÓRIA PUXA A OUTRA']
+        },
+        {
+          id: 'scen_5',
+          text: 'Depois de estudar determinado tema, o professor quer propor uma produção prática, uma simulação ou uma atividade em que os participantes coloquem as ideias em funcionamento.',
+          correct: 'IDEIAS EM AÇÃO!',
+          justification: 'Essa seção mobiliza aprendizagem ativa, participação, criação, experimentação e aplicação.',
+          options: ['IDEIAS EM AÇÃO!', 'AÇÃO E REAÇÃO', 'PARA CONTINUAR A CONVERSA...', 'PARA COMEÇO DE CONVERSA']
+        },
+        {
+          id: 'scen_6',
+          text: 'O professor deseja indicar um vídeo, livro, texto ou conteúdo complementar para ampliar o conhecimento dos participantes.',
+          correct: 'PARA CONHECER MAIS',
+          justification: 'Esse box oferece referências e informações adicionais que ampliam a bagagem pedagógica e temática.',
+          options: ['PARA CONHECER MAIS', 'VOCABULÁRIO', 'LÁ VEM HISTÓRIA', 'RECADO DO BEM']
+        },
+        {
+          id: 'scen_7',
+          text: 'O professor quer levar os participantes a pensar sobre as consequências de uma escolha ou comportamento.',
+          correct: 'AÇÃO E REAÇÃO',
+          justification: 'Esse box estimula a tomada de decisão consciente e a reflexão sobre causa, efeito e responsabilidade.',
+          options: ['AÇÃO E REAÇÃO', 'IDEIAS EM AÇÃO!', 'HORA DE REFLETIR MAIS', 'UMA HISTÓRIA PUXA A OUTRA']
+        },
+        {
+          id: 'scen_8',
+          text: 'O professor deseja encerrar uma experiência com uma mensagem acolhedora, motivadora e comprometida com valores positivos.',
+          correct: 'RECADO DO BEM',
+          justification: 'Esse box reforça valores, oferece incentivo e sintetiza sentimentos acolhedores e atitudes construtivas.',
+          options: ['RECADO DO BEM', 'PARA COMEÇO DE CONVERSA', 'PARA CONTAR SUA EXPERIÊNCIA', 'PARA CONTINUAR A CONVERSA...']
+        }
+      ],
+      finalChallenges: [
+        {
+          question: 'Qual elemento esclarece uma palavra ou conceito?',
+          correct: 'VOCABULÁRIO',
+          options: ['VOCABULÁRIO', 'PARA CONHECER MAIS', 'RECADO DO BEM', 'LÁ VEM HISTÓRIA']
+        },
+        {
+          question: 'Qual Seção mobiliza os conhecimentos prévios e promove o acolhimento inicial?',
+          correct: 'PARA COMEÇO DE CONVERSA',
+          options: ['PARA COMEÇO DE CONVERSA', 'PARA CONTAR SUA EXPERIÊNCIA', 'IDEIAS EM AÇÃO!', 'HORA DE REFLETIR']
+        },
+        {
+          question: 'Qual Box aprofunda uma reflexão que já foi iniciada na seção principal?',
+          correct: 'HORA DE REFLETIR MAIS',
+          options: ['HORA DE REFLETIR MAIS', 'HORA DE REFLETIR', 'AÇÃO E REAÇÃO', 'PARA CONTINUAR A CONVERSA...']
+        },
+        {
+          question: 'Qual Seção transforma ideias em uma experiência prática e participativa?',
+          correct: 'IDEIAS EM AÇÃO!',
+          options: ['IDEIAS EM AÇÃO!', 'AÇÃO E REAÇÃO', 'UMA HISTÓRIA PUXA A OUTRA', 'LÁ VEM HISTÓRIA']
+        },
+        {
+          question: 'Qual Box oferece referências e conteúdos complementares para pesquisa?',
+          correct: 'PARA CONHECER MAIS',
+          options: ['PARA CONHECER MAIS', 'VOCABULÁRIO', 'RECADO DO BEM', 'HORA DE REFLETIR MAIS']
+        },
+        {
+          question: 'Qual Seção utiliza a narrativa como fio condutor do capítulo?',
+          correct: 'LÁ VEM HISTÓRIA',
+          options: ['LÁ VEM HISTÓRIA', 'UMA HISTÓRIA PUXA A OUTRA', 'PARA CONTAR SUA EXPERIÊNCIA', 'PARA COMEÇO DE CONVERSA']
+        }
+      ]
+    };
+
+    // Audio synthesizer helper (No external files needed)
+    class SoundFX {
+      static ctx = null;
+
+      static init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+      }
+
+      static playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.1) {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+          // Audio play fallback safely ignored
+        }
+      }
+
+      static playSuccess() {
+        this.playTone(523.25, 'sine', 0.1, 0.1); // C5
+        setTimeout(() => this.playTone(659.25, 'sine', 0.15, 0.12), 100); // E5
+        setTimeout(() => this.playTone(783.99, 'sine', 0.2, 0.15), 200); // G5
+      }
+
+      static playError() {
+        this.playTone(220, 'triangle', 0.15, 0.12);
+        setTimeout(() => this.playTone(180, 'triangle', 0.25, 0.12), 120);
+      }
+
+      static playClick() {
+        this.playTone(400, 'sine', 0.05, 0.05);
+      }
+
+      static playVictory() {
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, index) => {
+          setTimeout(() => this.playTone(freq, 'triangle', 0.25, 0.15), index * 120);
+        });
+      }
+    }
+
+    // Helper functions: array shuffle
+    function shuffleArray(arr) {
+      const array = [...arr];
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    const { useState, useEffect, useMemo } = React;
+
+    function App() {
+      // Application State
+      const [screen, setScreen] = useState('welcome'); // welcome, how-to-play, map, phase1, phase2, phase3, phase4, phase5, result, review
+      const [gameMode, setGameMode] = useState('individual'); // individual, team
+      const [teamName, setTeamName] = useState('');
+      const [soundEnabled, setSoundEnabled] = useState(false);
+      const [score, setScore] = useState(0);
+      const [completedPhases, setCompletedPhases] = useState([false, false, false, false, false]);
+      const [currentPhaseNumber, setCurrentPhaseNumber] = useState(1);
+
+      // Phase 1 State
+      const [p1Deck, setP1Deck] = useState([]);
+      const [p1Index, setP1Index] = useState(0);
+      const [p1Answered, setP1Answered] = useState(false);
+      const [p1Feedback, setP1Feedback] = useState(null);
+
+      // Phase 2 State
+      const [p2Items, setP2Items] = useState([]);
+      const [p2Index, setP2Index] = useState(0);
+      const [p2Options, setP2Options] = useState([]);
+      const [p2Attempt, setP2Attempt] = useState(1);
+      const [p2Answered, setP2Answered] = useState(false);
+      const [p2Feedback, setP2Feedback] = useState(null);
+
+      // Phase 3 State
+      const [p3Scenarios, setP3Scenarios] = useState([]);
+      const [p3Index, setP3Index] = useState(0);
+      const [p3Answered, setP3Answered] = useState(false);
+      const [p3Feedback, setP3Feedback] = useState(null);
+
+      // Phase 4 State
+      const [p4Items, setP4Items] = useState([]);
+      const [p4Attempt, setP4Attempt] = useState(1);
+      const [p4Checked, setP4Checked] = useState(false);
+      const [p4IsCorrect, setP4IsCorrect] = useState(false);
+      const [p4Feedback, setP4Feedback] = useState(null);
+
+      // Phase 5 State
+      const [p5Questions, setP5Questions] = useState([]);
+      const [p5Index, setP5Index] = useState(0);
+      const [p5Answered, setP5Answered] = useState(false);
+      const [p5Feedback, setP5Feedback] = useState(null);
+
+      // Load persistent state on mount
+      useEffect(() => {
+        const saved = localStorage.getItem('TRILHA_EAI_STATE');
+        if (saved) {
+          try {
+            const data = JSON.parse(saved);
+            if (data.score !== undefined) setScore(data.score);
+            if (data.completedPhases) setCompletedPhases(data.completedPhases);
+            if (data.gameMode) setGameMode(data.gameMode);
+            if (data.teamName) setTeamName(data.teamName);
+            if (data.currentPhaseNumber) setCurrentPhaseNumber(data.currentPhaseNumber);
+          } catch (e) {
+            console.error('Error restoring localStorage data', e);
+          }
+        }
+      }, []);
+
+      // Save state to localStorage whenever state changes
+      useEffect(() => {
+        const stateToSave = {
+          score,
+          completedPhases,
+          gameMode,
+          teamName,
+          currentPhaseNumber
+        };
+        localStorage.setItem('TRILHA_EAI_STATE', JSON.stringify(stateToSave));
+      }, [score, completedPhases, gameMode, teamName, currentPhaseNumber]);
+
+      // Sound helper wrapper
+      const triggerSound = (type) => {
+        if (!soundEnabled) return;
+        if (type === 'success') SoundFX.playSuccess();
+        else if (type === 'error') SoundFX.playError();
+        else if (type === 'click') SoundFX.playClick();
+        else if (type === 'victory') SoundFX.playVictory();
+      };
+
+      // Reset & Start Phase 1
+      const startPhase1 = () => {
+        const allItems = [...PEDAGOGY_DATA.sections, ...PEDAGOGY_DATA.boxes];
+        const shuffled = shuffleArray(allItems);
+        setP1Deck(shuffled);
+        setP1Index(0);
+        setP1Answered(false);
+        setP1Feedback(null);
+        setScreen('phase1');
+        setCurrentPhaseNumber(1);
+      };
+
+      // Reset & Start Phase 2
+      const startPhase2 = () => {
+        const allItems = [...PEDAGOGY_DATA.sections, ...PEDAGOGY_DATA.boxes];
+        const selected = shuffleArray(allItems).slice(0, 6);
+        setP2Items(selected);
+        setP2Index(0);
+        setP2Attempt(1);
+        setP2Answered(false);
+        setP2Feedback(null);
+        setupPhase2Options(selected[0], allItems);
+        setScreen('phase2');
+        setCurrentPhaseNumber(2);
+      };
+
+      const setupPhase2Options = (currentItem, allItems) => {
+        if (!currentItem) return;
+        // Correct option
+        const correctOpt = currentItem.purpose;
+        // Incorrect options from other items
+        const others = allItems.filter(i => i.id !== currentItem.id);
+        const wrongOpts = shuffleArray(others).slice(0, 2).map(i => i.purpose);
+        const options = shuffleArray([correctOpt, ...wrongOpts]);
+        setP2Options(options);
+      };
+
+      // Reset & Start Phase 3
+      const startPhase3 = () => {
+        const selectedScenarios = shuffleArray(PEDAGOGY_DATA.scenarios).slice(0, 5);
+        // Shuffle options for each scenario
+        const prepared = selectedScenarios.map(scen => ({
+          ...scen,
+          shuffledOptions: shuffleArray(scen.options)
+        }));
+        setP3Scenarios(prepared);
+        setP3Index(0);
+        setP3Answered(false);
+        setP3Feedback(null);
+        setScreen('phase3');
+        setCurrentPhaseNumber(3);
+      };
+
+      // Reset & Start Phase 4
+      const startPhase4 = () => {
+        // Initial shuffled sequence of sections
+        const shuffledSecs = shuffleArray(PEDAGOGY_DATA.sections);
+        setP4Items(shuffledSecs);
+        setP4Attempt(1);
+        setP4Checked(false);
+        setP4IsCorrect(false);
+        setP4Feedback(null);
+        setScreen('phase4');
+        setCurrentPhaseNumber(4);
+      };
+
+      // Reset & Start Phase 5
+      const startPhase5 = () => {
+        const preparedQuestions = PEDAGOGY_DATA.finalChallenges.map(q => ({
+          ...q,
+          shuffledOptions: shuffleArray(q.options)
+        }));
+        setP5Questions(shuffleArray(preparedQuestions));
+        setP5Index(0);
+        setP5Answered(false);
+        setP5Feedback(null);
+        setScreen('phase5');
+        setCurrentPhaseNumber(5);
+      };
+
+      // Reset Game completely
+      const resetAllProgress = () => {
+        setScore(0);
+        setCompletedPhases([false, false, false, false, false]);
+        setCurrentPhaseNumber(1);
+        localStorage.removeItem('TRILHA_EAI_STATE');
+        setScreen('welcome');
+        triggerSound('click');
+      };
+
+      // Max score calculation
+      const maxPossibleScore = 60 + 60 + 50 + 40 + 60; // 270 pts
+      const scorePercentage = Math.min(100, Math.round((score / maxPossibleScore) * 100));
+
+      const handleP1Answer = (selectedType) => {
+        if (p1Answered) return;
+        const currentCard = p1Deck[p1Index];
+        const isCorrect = currentCard.type === selectedType;
+
+        setP1Answered(true);
+
+        if (isCorrect) {
+          setScore(prev => prev + 5);
+          triggerSound('success');
+          setP1Feedback({
+            correct: true,
+            message: currentCard.type === 'SEÇÃO'
+              ? 'Correto! Este elemento é uma Seção e participa da organização do percurso pedagógico do capítulo.'
+              : 'Correto! Este elemento é um Box e oferece um apoio, aprofundamento ou provocação específica dentro do percurso.'
+          });
+        } else {
+          triggerSound('error');
+          setP1Feedback({
+            correct: false,
+            message: `Quase! "${currentCard.name}" é um(a) ${currentCard.type}. Observe sua função no material e tente perceber se ele estrutura o percurso ou se atua como apoio específico.`
+          });
+        }
+      };
+
+      const nextP1Card = () => {
+        triggerSound('click');
+        if (p1Index < p1Deck.length - 1) {
+          setP1Index(prev => prev + 1);
+          setP1Answered(false);
+          setP1Feedback(null);
+        } else {
+          // Phase 1 finished
+          const updated = [...completedPhases];
+          updated[0] = true;
+          setCompletedPhases(updated);
+          setScreen('map');
+          if (soundEnabled) confetti();
+        }
+      };
+
+      const handleP2Answer = (selectedPurpose) => {
+        if (p2Answered) return;
+        const currentItem = p2Items[p2Index];
+        const isCorrect = selectedPurpose === currentItem.purpose;
+
+        if (isCorrect) {
+          const pointsGained = p2Attempt === 1 ? 10 : 5;
+          setScore(prev => prev + pointsGained);
+          setP2Answered(true);
+          triggerSound('success');
+          setP2Feedback({
+            correct: true,
+            message: `Correto! ${currentItem.purpose}`,
+            keywords: currentItem.keywords
+          });
+        } else {
+          if (p2Attempt === 1) {
+            triggerSound('error');
+            setP2Attempt(2);
+            setP2Feedback({
+              correct: false,
+              message: 'Não é bem essa. Tente mais uma vez! Analise com atenção o propósito pedagógico.'
+            });
+          } else {
+            // Second attempt failed
+            setP2Answered(true);
+            triggerSound('error');
+            setP2Feedback({
+              correct: false,
+              message: `O propósito correto é: "${currentItem.purpose}"`,
+              keywords: currentItem.keywords
+            });
+          }
+        }
+      };
+
+      const nextP2Card = () => {
+        triggerSound('click');
+        if (p2Index < p2Items.length - 1) {
+          const nextIdx = p2Index + 1;
+          setP2Index(nextIdx);
+          setP2Attempt(1);
+          setP2Answered(false);
+          setP2Feedback(null);
+          setupPhase2Options(p2Items[nextIdx], [...PEDAGOGY_DATA.sections, ...PEDAGOGY_DATA.boxes]);
+        } else {
+          // Phase 2 finished
+          const updated = [...completedPhases];
+          updated[1] = true;
+          setCompletedPhases(updated);
+          setScreen('map');
+          if (soundEnabled) confetti();
+        }
+      };
+
+      const handleP3Answer = (selectedName) => {
+        if (p3Answered) return;
+        const currentScen = p3Scenarios[p3Index];
+        const isCorrect = selectedName === currentScen.correct;
+
+        setP3Answered(true);
+
+        if (isCorrect) {
+          setScore(prev => prev + 10);
+          triggerSound('success');
+          setP3Feedback({
+            correct: true,
+            message: currentScen.justification
+          });
+        } else {
+          triggerSound('error');
+          setP3Feedback({
+            correct: false,
+            message: `A resposta mais adequada é "${currentScen.correct}". ${currentScen.justification}`
+          });
+        }
+      };
+
+      const nextP3Card = () => {
+        triggerSound('click');
+        if (p3Index < p3Scenarios.length - 1) {
+          setP3Index(prev => prev + 1);
+          setP3Answered(false);
+          setP3Feedback(null);
+        } else {
+          // Phase 3 finished
+          const updated = [...completedPhases];
+          updated[2] = true;
+          setCompletedPhases(updated);
+          setScreen('map');
+          if (soundEnabled) confetti();
+        }
+      };
+
+      const moveP4Item = (index, direction) => {
+        if (p4Checked && p4IsCorrect) return;
+        triggerSound('click');
+        const updated = [...p4Items];
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= updated.length) return;
+        [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
+        setP4Items(updated);
+      };
+
+      const checkP4Sequence = () => {
+        // Target Reference Order:
+        // 1. PARA COMEÇO DE CONVERSA
+        // 2. LÁ VEM HISTÓRIA
+        // 3. IDEIAS EM AÇÃO!
+        // 4. HORA DE REFLETIR
+        // 5. PARA CONTINUAR A CONVERSA...
+        // 6. UMA HISTÓRIA PUXA A OUTRA
+        const referenceOrder = [
+          'PARA COMEÇO DE CONVERSA',
+          'LÁ VEM HISTÓRIA',
+          'IDEIAS EM AÇÃO!',
+          'HORA DE REFLETIR',
+          'PARA CONTINUAR A CONVERSA...',
+          'UMA HISTÓRIA PUXA A OUTRA'
+        ];
+
+        const isExact = p4Items.every((item, idx) => item.name === referenceOrder[idx]);
+
+        if (isExact) {
+          const points = p4Attempt === 1 ? 40 : 25;
+          setScore(prev => prev + points);
+          triggerSound('success');
+          setP4IsCorrect(true);
+          setP4Checked(true);
+          setP4Feedback({
+            correct: true,
+            message: 'Excelente! Você reconstruiu o percurso pedagógico perfeito de um capítulo!'
+          });
+        } else {
+          if (p4Attempt === 1) {
+            triggerSound('error');
+            setP4Attempt(2);
+            setP4Feedback({
+              correct: false,
+              message: 'Algumas seções não estão no movimento ideal (Introdução -> Narrativa -> Prática -> Reflexão -> Aprofundamento -> Continuidade). Tente ajustar!'
+            });
+          } else {
+            // Give visual hint & bonus points so participant advances smoothly
+            setScore(prev => prev + 15);
+            triggerSound('click');
+            setP4IsCorrect(true);
+            setP4Checked(true);
+            // Reorder items automatically to correct reference order
+            const correctSorted = referenceOrder.map(name => PEDAGOGY_DATA.sections.find(s => s.name === name));
+            setP4Items(correctSorted);
+            setP4Feedback({
+              correct: false,
+              message: 'Com apoio visual pedagógico, a sequência foi reorganizada para seu aprendizado!'
+            });
+          }
+        }
+      };
+
+      const finishP4 = () => {
+        triggerSound('click');
+        const updated = [...completedPhases];
+        updated[3] = true;
+        setCompletedPhases(updated);
+        setScreen('map');
+        if (soundEnabled) confetti();
+      };
+
+      const handleP5Answer = (selectedOpt) => {
+        if (p5Answered) return;
+        const currentQ = p5Questions[p5Index];
+        const isCorrect = selectedOpt === currentQ.correct;
+
+        setP5Answered(true);
+
+        if (isCorrect) {
+          setScore(prev => prev + 10);
+          triggerSound('success');
+          setP5Feedback({
+            correct: true,
+            message: 'Resposta correta! Ponto computado.'
+          });
+        } else {
+          triggerSound('error');
+          setP5Feedback({
+            correct: false,
+            message: `A resposta correta é "${currentQ.correct}".`
+          });
+        }
+      };
+
+      const nextP5Question = () => {
+        triggerSound('click');
+        if (p5Index < p5Questions.length - 1) {
+          setP5Index(prev => prev + 1);
+          setP5Answered(false);
+          setP5Feedback(null);
+        } else {
+          // Phase 5 and Game finished!
+          const updated = [...completedPhases];
+          updated[4] = true;
+          setCompletedPhases(updated);
+          setScreen('result');
+          triggerSound('victory');
+          try {
+            confetti({
+              particleCount: 120,
+              spread: 80,
+              origin: { y: 0.6 }
+            });
+          } catch (e) {}
+        }
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col justify-between">
+          {/* Header Bar */}
+          <header className="bg-eai-navy text-white shadow-lg sticky top-0 z-50 border-b border-slate-700">
+            <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+              {/* Title & Badge */}
+              <div 
+                className="flex items-center gap-3 cursor-pointer select-none"
+                onClick={() => { setScreen('welcome'); triggerSound('click'); }}
+              >
+                <div className="w-10 h-10 rounded-xl bg-eai-orange flex items-center justify-center font-display font-extrabold text-xl text-white shadow">
+                  EAI
+                </div>
+                <div>
+                  <h1 className="font-display font-bold text-lg leading-tight tracking-wide text-amber-300">
+                    TRILHA EAI
+                  </h1>
+                  <p className="text-xs text-slate-300 font-medium">Seções e Boxes em Ação</p>
+                </div>
+              </div>
+
+              {/* Status Controls */}
+              <div className="flex items-center gap-4 text-sm font-medium">
+                {/* Score badge */}
+                <div className="bg-slate-800/90 border border-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                  <i className="fa-solid fa-trophy text-eai-amber"></i>
+                  <span>Pontos: <strong className="text-white font-bold">{score}</strong></span>
+                </div>
+
+                {/* Team / Player Identifier */}
+                {teamName && (
+                  <div className="hidden sm:flex items-center gap-2 bg-slate-800/90 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-slate-200">
+                    <i className={`fa-solid ${gameMode === 'team' ? 'fa-users' : 'fa-user'} text-eai-orange`}></i>
+                    <span className="truncate max-w-[120px]">{teamName}</span>
+                  </div>
+                )}
+
+                {/* Sound Toggle */}
+                <button
+                  onClick={() => {
+                    setSoundEnabled(!soundEnabled);
+                    if (!soundEnabled) SoundFX.playClick();
+                  }}
+                  className={`p-2 rounded-lg transition-colors border ${
+                    soundEnabled 
+                      ? 'bg-emerald-600/30 border-emerald-500 text-emerald-300' 
+                      : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+                  }`}
+                  title={soundEnabled ? 'Som ativado' : 'Som desativado'}
+                  aria-label="Alternar som"
+                >
+                  <i className={`fa-solid ${soundEnabled ? 'fa-volume-high' : 'fa-volume-xmark'}`}></i>
+                </button>
+
+                {/* Reset Game Button */}
+                <button
+                  onClick={resetAllProgress}
+                  className="p-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-800 transition-colors"
+                  title="Reiniciar jogo e apagar progresso"
+                  aria-label="Reiniciar jogo"
+                >
+                  <i className="fa-solid fa-rotate-right"></i>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* Main Content Area */}
+          <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 md:p-8">
+            {}
+
+            {/* SCREEN 1: ABERTURA */}
+            {screen === 'welcome' && (
+              <div className="flex flex-col items-center text-center py-6 sm:py-10 space-y-8 max-w-3xl mx-auto card-transition">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100 text-eai-orange text-xs font-semibold uppercase tracking-wider border border-orange-200">
+                  <i className="fa-solid fa-graduation-cap"></i> Metodologia Socioemocional
+                </div>
+
+                <div className="space-y-3">
+                  <h1 className="font-display font-extrabold text-4xl sm:text-5xl md:text-6xl text-eai-navy tracking-tight">
+                    TRILHA <span className="text-eai-orange">EAI</span>
+                  </h1>
+                  <p className="font-display font-bold text-xl sm:text-2xl text-slate-600">
+                    Seções e Boxes em Ação
+                  </p>
+                </div>
+
+                <div className="p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-xl max-w-2xl relative overflow-hidden">
+                  <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-orange-100 rounded-full blur-2xl opacity-60"></div>
+                  <div className="absolute -left-8 -top-8 w-32 h-32 bg-amber-100 rounded-full blur-2xl opacity-60"></div>
+                  
+                  <p className="text-slate-700 text-base sm:text-lg italic font-medium leading-relaxed relative z-10">
+                    “Reconstrua o percurso pedagógico e descubra o propósito de cada elemento do material socioemocional.”
+                  </p>
+                </div>
+
+                {/* Hero Illustration Composition */}
+                <div className="grid grid-cols-3 gap-4 w-full max-w-lg my-4">
+                  <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex flex-col items-center gap-2 shadow-sm">
+                    <i className="fa-solid fa-layer-group text-2xl text-indigo-600"></i>
+                    <span className="text-xs font-bold text-indigo-900">Seções Estruturantes</span>
+                  </div>
+                  <div className="bg-amber-50 border border-amber-100 p-4 rounded-xl flex flex-col items-center gap-2 shadow-sm">
+                    <i className="fa-solid fa-box-open text-2xl text-amber-600"></i>
+                    <span className="text-xs font-bold text-amber-900">Boxes de Apoio</span>
+                  </div>
+                  <div className="bg-teal-50 border border-teal-100 p-4 rounded-xl flex flex-col items-center gap-2 shadow-sm">
+                    <i className="fa-solid fa-compass text-2xl text-teal-600"></i>
+                    <span className="text-xs font-bold text-teal-900">Percurso Formativo</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md pt-2">
+                  <button
+                    onClick={() => { setScreen('how-to-play'); triggerSound('click'); }}
+                    className="w-full sm:w-auto flex-1 bg-eai-orange hover:bg-eai-orangeHover text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all text-base flex items-center justify-center gap-2 transform active:scale-95"
+                  >
+                    <i className="fa-solid fa-play"></i> Iniciar Missão
+                  </button>
+                  <button
+                    onClick={() => { setScreen('how-to-play'); triggerSound('click'); }}
+                    className="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-semibold py-4 px-6 rounded-xl shadow-sm transition-all text-base flex items-center justify-center gap-2"
+                  >
+                    <i className="fa-solid fa-circle-info"></i> Como Jogar
+                  </button>
+                </div>
+
+                <p className="text-xs text-slate-400 pt-6">
+                  Jogo pedagógico para formação de professores — Metodologia EAI • Instituto Hortense
+                </p>
+              </div>
+            )}
+
+            {}
+            {screen === 'how-to-play' && (
+              <div className="max-w-3xl mx-auto space-y-6 card-transition py-4">
+                <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xl space-y-6">
+                  <div className="border-b border-slate-100 pb-4 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-lg">
+                      <i className="fa-solid fa-route"></i>
+                    </div>
+                    <div>
+                      <h2 className="font-display font-bold text-2xl text-eai-navy">Como Funciona a Trilha?</h2>
+                      <p className="text-xs text-slate-500">Orientações do Treinamento Pedagógico</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50/80 border border-amber-200 p-4 rounded-xl text-amber-900 text-sm leading-relaxed font-medium">
+                    <p className="flex items-start gap-2">
+                      <i className="fa-solid fa-wind text-amber-600 mt-1"></i>
+                      <span>
+                        Uma <strong>ventania pedagógica</strong> misturou as partes de um capítulo. Sua missão é reconhecer as Seções, identificar os Boxes e reconstruir o percurso pedagógico socioemocional.
+                      </span>
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600">
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                      <h3 className="font-bold text-eai-navy flex items-center gap-2">
+                        <i className="fa-solid fa-flag-checkered text-eai-orange"></i> Estrutura em 5 Fases
+                      </h3>
+                      <p className="text-xs leading-relaxed">
+                        A trilha contém 5 etapas progressivas de associação, aplicação e ordenamento lógico.
+                      </p>
+                    </div>
+
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                      <h3 className="font-bold text-eai-navy flex items-center gap-2">
+                        <i className="fa-solid fa-star text-eai-amber"></i> Pontuação & Tentativas
+                      </h3>
+                      <p className="text-xs leading-relaxed">
+                        Cada acerto soma pontos. Algumas etapas permitem segunda chance com feedback construtivo.
+                      </p>
+                    </div>
+
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                      <h3 className="font-bold text-eai-navy flex items-center gap-2">
+                        <i className="fa-solid fa-comments text-eai-teal"></i> Feedback Imediato
+                      </h3>
+                      <p className="text-xs leading-relaxed">
+                        Todas as escolhas oferecem explicações sobre o propósito pedagógico de cada elemento.
+                      </p>
+                    </div>
+
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                      <h3 className="font-bold text-eai-navy flex items-center gap-2">
+                        <i className="fa-solid fa-heart text-eai-coral"></i> Foco na Aprendizagem
+                      </h3>
+                      <p className="text-xs leading-relaxed">
+                        O objetivo é compreender a intencionalidade de cada item, sem punições ou avaliações rígidas.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Mode & Identifier Selection */}
+                  <div className="pt-4 border-t border-slate-100 space-y-4">
+                    <h3 className="font-bold text-base text-eai-navy">Escolha o Modo de Jogo:</h3>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <button
+                        type="button"
+                        onClick={() => { setGameMode('individual'); triggerSound('click'); }}
+                        className={`p-4 rounded-xl border-2 text-left flex items-start gap-3 transition-all ${
+                          gameMode === 'individual'
+                            ? 'border-eai-orange bg-orange-50/50 text-eai-navy shadow-sm'
+                            : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                        }`}
+                      >
+                        <i className="fa-solid fa-user text-xl text-eai-orange mt-0.5"></i>
+                        <div>
+                          <div className="font-bold text-sm">Jogar Individualmente</div>
+                          <div className="text-xs text-slate-500">Para estuda individual do professor</div>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => { setGameMode('team'); triggerSound('click'); }}
+                        className={`p-4 rounded-xl border-2 text-left flex items-start gap-3 transition-all ${
+                          gameMode === 'team'
+                            ? 'border-eai-orange bg-orange-50/50 text-eai-navy shadow-sm'
+                            : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                        }`}
+                      >
+                        <i className="fa-solid fa-users text-xl text-eai-orange mt-0.5"></i>
+                        <div>
+                          <div className="font-bold text-sm">Jogar em Equipe</div>
+                          <div className="text-xs text-slate-500">Para uso projetado ou grupo presencial</div>
+                        </div>
+                      </button>
+                    </div>
+
+                    {gameMode === 'team' && (
+                      <div className="pt-2">
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          Nome da Equipe ou Grupo (Opcional):
+                        </label>
+                        <input
+                          type="text"
+                          value={teamName}
+                          onChange={(e) => setTeamName(e.target.value)}
+                          placeholder="Ex: Grupo de Formação Escola Hortense"
+                          className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-eai-orange text-sm"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-4 flex items-center justify-end gap-3">
+                    <button
+                      onClick={() => {
+                        setScreen('map');
+                        triggerSound('click');
+                      }}
+                      className="w-full sm:w-auto bg-eai-orange hover:bg-eai-orangeHover text-white font-bold py-3.5 px-8 rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+                    >
+                      <span>Começar o Jogo</span> <i className="fa-solid fa-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {}
+            {screen === 'map' && (
+              <div className="max-w-4xl mx-auto space-y-6 card-transition py-4">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-lg space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div>
+                      <h2 className="font-display font-bold text-2xl text-eai-navy">Mapa da Trilha Pedagógica</h2>
+                      <p className="text-xs text-slate-500">
+                        {gameMode === 'team' && teamName ? `Equipe: ${teamName}` : 'Seu percurso socioemocional'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-slate-500">Progresso Geral:</span>
+                      <div className="w-32 bg-slate-100 h-3 rounded-full overflow-hidden border border-slate-200">
+                        <div 
+                          className="bg-eai-orange h-full transition-all duration-500"
+                          style={{ width: `${(completedPhases.filter(Boolean).length / 5) * 100}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-xs font-bold text-eai-orange">
+                        {completedPhases.filter(Boolean).length}/5
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 5 Phase Trail Node Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-2">
+                    {[
+                      { num: 1, name: 'Seção ou Box?', desc: 'Diferencie os tipos', startFn: startPhase1, icon: 'fa-layer-group' },
+                      { num: 2, name: 'Encontre o Propósito', desc: 'Associe ao objetivo', startFn: startPhase2, icon: 'fa-bullseye' },
+                      { num: 3, name: 'Sala em Cena', desc: 'Situações práticas', startFn: startPhase3, icon: 'fa-chalkboard-user' },
+                      { num: 4, name: 'Reconstrua o Percurso', desc: 'Sequência lógica', startFn: startPhase4, icon: 'fa-arrow-down-short-wide' },
+                      { num: 5, name: 'Missão Final', desc: 'Consolidação', startFn: startPhase5, icon: 'fa-award' }
+                    ].map((phase, idx) => {
+                      const isCompleted = completedPhases[idx];
+                      const isUnlocked = idx === 0 || completedPhases[idx - 1];
+                      const isCurrent = isUnlocked && !isCompleted;
+
+                      return (
+                        <div
+                          key={phase.num}
+                          className={`p-4 rounded-xl border-2 flex flex-col justify-between space-y-3 transition-all relative ${
+                            isCompleted
+                              ? 'border-emerald-500 bg-emerald-50/40 text-emerald-950'
+                              : isCurrent
+                              ? 'border-eai-orange bg-orange-50/50 shadow-md ring-2 ring-orange-200'
+                              : 'border-slate-200 bg-slate-50 opacity-60 text-slate-400'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center ${
+                              isCompleted
+                                ? 'bg-emerald-500 text-white'
+                                : isCurrent
+                                ? 'bg-eai-orange text-white'
+                                : 'bg-slate-300 text-slate-600'
+                            }`}>
+                              {isCompleted ? <i className="fa-solid fa-check"></i> : phase.num}
+                            </span>
+                            <i className={`fa-solid ${phase.icon} ${isCompleted ? 'text-emerald-600' : isCurrent ? 'text-eai-orange' : 'text-slate-300'}`}></i>
+                          </div>
+
+                          <div>
+                            <h3 className="font-bold text-sm leading-tight mb-1">{phase.name}</h3>
+                            <p className="text-[11px] leading-tight text-slate-500">{phase.desc}</p>
+                          </div>
+
+                          <div>
+                            {isUnlocked ? (
+                              <button
+                                onClick={() => {
+                                  triggerSound('click');
+                                  phase.startFn();
+                                }}
+                                className={`w-full py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                                  isCompleted
+                                    ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                                    : 'bg-eai-orange text-white hover:bg-eai-orangeHover shadow'
+                                }`}
+                              >
+                                {isCompleted ? 'Refazer' : 'Iniciar'} <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                              </button>
+                            ) : (
+                              <div className="text-[11px] font-semibold text-slate-400 flex items-center justify-center gap-1 py-1">
+                                <i className="fa-solid fa-lock text-[10px]"></i> Bloqueado
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Bottom Trail Navigation Bar */}
+                  {completedPhases.every(Boolean) && (
+                    <div className="pt-4 border-t border-slate-100 flex justify-center">
+                      <button
+                        onClick={() => { setScreen('result'); triggerSound('click'); }}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all flex items-center gap-2"
+                      >
+                        <i className="fa-solid fa-trophy"></i> Ver Resultado Final
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {}
+            {screen === 'phase1' && p1Deck.length > 0 && (
+              <div className="max-w-2xl mx-auto space-y-6 card-transition py-4">
+                {/* Header info */}
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-500 px-1">
+                  <span>FASE 1: SEÇÃO OU BOX?</span>
+                  <span>Carta {p1Index + 1} de {p1Deck.length}</span>
+                </div>
+
+                {/* Question Card */}
+                <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xl space-y-6 text-center relative">
+                  <div className="inline-block p-4 rounded-2xl bg-slate-100 text-eai-navy text-3xl mb-2">
+                    <i className={`fa-solid ${p1Deck[p1Index].icon}`}></i>
+                  </div>
+
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-widest text-slate-400 block mb-1">
+                      Identifique o Elemento
+                    </span>
+                    <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-eai-navy">
+                      {p1Deck[p1Index].name}
+                    </h2>
+                  </div>
+
+                  {/* Answer Buttons */}
+                  {!p1Answered ? (
+                    <div className="grid grid-cols-2 gap-4 pt-4">
+                      <button
+                        onClick={() => handleP1Answer('SEÇÃO')}
+                        className="py-4 px-6 rounded-xl bg-indigo-50 hover:bg-indigo-100 border-2 border-indigo-200 hover:border-indigo-400 text-indigo-900 font-bold text-lg shadow-sm transition-all flex flex-col items-center gap-1 active:scale-95"
+                      >
+                        <i className="fa-solid fa-layer-group text-xl text-indigo-600"></i>
+                        <span>SEÇÃO</span>
+                        <span className="text-[10px] font-normal text-indigo-700">(Estrutura o percurso)</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleP1Answer('BOX')}
+                        className="py-4 px-6 rounded-xl bg-amber-50 hover:bg-amber-100 border-2 border-amber-200 hover:border-amber-400 text-amber-900 font-bold text-lg shadow-sm transition-all flex flex-col items-center gap-1 active:scale-95"
+                      >
+                        <i className="fa-solid fa-box-open text-xl text-amber-600"></i>
+                        <span>BOX</span>
+                        <span className="text-[10px] font-normal text-amber-700">(Apoio ou aprofundamento)</span>
+                      </button>
+                    </div>
+                  ) : (
+                    /* Feedback Display */
+                    <div className={`p-5 rounded-xl border text-left space-y-3 ${
+                      p1Feedback.correct
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                        : 'bg-rose-50 border-rose-200 text-rose-900'
+                    }`}>
+                      <div className="flex items-center gap-2 font-bold text-base">
+                        <i className={`fa-solid ${p1Feedback.correct ? 'fa-circle-check text-emerald-600' : 'fa-circle-xmark text-rose-600'}`}></i>
+                        <span>{p1Feedback.correct ? 'Correto!' : 'Atenção Pedagógica'}</span>
+                      </div>
+                      <p className="text-sm leading-relaxed">{p1Feedback.message}</p>
+                      
+                      <div className="pt-2 flex justify-end">
+                        <button
+                          onClick={nextP1Card}
+                          className="bg-eai-navy hover:bg-slate-800 text-white font-bold py-2.5 px-6 rounded-xl shadow text-sm flex items-center gap-2"
+                        >
+                          <span>{p1Index < p1Deck.length - 1 ? 'Próxima carta' : 'Concluir Fase 1'}</span>
+                          <i className="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {}
+            {screen === 'phase2' && p2Items.length > 0 && (
+              <div className="max-w-2xl mx-auto space-y-6 card-transition py-4">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-500 px-1">
+                  <span>FASE 2: ENCONTRE O PROPÓSITO</span>
+                  <span>Desafio {p2Index + 1} de {p2Items.length}</span>
+                </div>
+
+                <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xl space-y-6">
+                  {/* Current Item Header */}
+                  <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div className="w-12 h-12 rounded-xl bg-eai-navy text-white flex items-center justify-center text-2xl font-bold">
+                      <i className={`fa-solid ${p2Items[p2Index].icon}`}></i>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-eai-orange">
+                        Qual é o principal propósito de:
+                      </span>
+                      <h2 className="font-display font-bold text-xl sm:text-2xl text-eai-navy">
+                        {p2Items[p2Index].name}?
+                      </h2>
+                    </div>
+                  </div>
+
+                  {/* Multiple Choice Options */}
+                  {!p2Answered && (
+                    <div className="space-y-3">
+                      {p2Options.map((opt, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => handleP2Answer(opt)}
+                          className="w-full text-left p-4 rounded-xl border border-slate-200 hover:border-eai-orange hover:bg-orange-50/40 text-slate-700 font-medium text-sm leading-relaxed transition-all shadow-sm flex items-start gap-3 active:scale-[0.99]"
+                        >
+                          <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                            {String.fromCharCode(65 + idx)}
+                          </span>
+                          <span>{opt}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Feedback Panel */}
+                  {p2Feedback && (
+                    <div className={`p-5 rounded-xl border text-left space-y-3 ${
+                      p2Feedback.correct
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                        : 'bg-amber-50 border-amber-200 text-amber-900'
+                    }`}>
+                      <div className="flex items-center gap-2 font-bold text-base">
+                        <i className={`fa-solid ${p2Feedback.correct ? 'fa-circle-check text-emerald-600' : 'fa-triangle-exclamation text-amber-600'}`}></i>
+                        <span>{p2Feedback.correct ? 'Excelente!' : 'Ajuste de Foco'}</span>
+                      </div>
+                      
+                      <p className="text-sm leading-relaxed">{p2Feedback.message}</p>
+
+                      {p2Feedback.keywords && (
+                        <div className="pt-2 border-t border-slate-200/60">
+                          <span className="text-xs font-bold block mb-1">Palavras-chave pedagógicas:</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {p2Feedback.keywords.map((kw, i) => (
+                              <span key={i} className="px-2 py-0.5 rounded bg-white/80 border border-slate-200 text-[11px] font-medium text-slate-700">
+                                #{kw}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {p2Answered && (
+                        <div className="pt-2 flex justify-end">
+                          <button
+                            onClick={nextP2Card}
+                            className="bg-eai-navy hover:bg-slate-800 text-white font-bold py-2.5 px-6 rounded-xl shadow text-sm flex items-center gap-2"
+                          >
+                            <span>{p2Index < p2Items.length - 1 ? 'Próximo item' : 'Concluir Fase 2'}</span>
+                            <i className="fa-solid fa-arrow-right text-xs"></i>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {}
+            {screen === 'phase3' && p3Scenarios.length > 0 && (
+              <div className="max-w-2xl mx-auto space-y-6 card-transition py-4">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-500 px-1">
+                  <span>FASE 3: SALA EM CENA (Situações Práticas)</span>
+                  <span>Cenário {p3Index + 1} de {p3Scenarios.length}</span>
+                </div>
+
+                <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xl space-y-6">
+                  {/* Scenario Description */}
+                  <div className="bg-slate-900 text-white p-6 rounded-xl shadow space-y-2">
+                    <span className="text-xs font-bold text-eai-amber uppercase tracking-wider flex items-center gap-1.5">
+                      <i className="fa-solid fa-masks-theater"></i> Situação de Formação / Sala de Aula
+                    </span>
+                    <p className="text-base sm:text-lg font-medium leading-relaxed">
+                      “{p3Scenarios[p3Index].text}”
+                    </p>
+                  </div>
+
+                  <p className="text-xs font-bold text-slate-500 uppercase">
+                    Qual Seção ou Box é mais indicado para esta situação?
+                  </p>
+
+                  {/* Multiple Choices */}
+                  {!p3Answered ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {p3Scenarios[p3Index].shuffledOptions.map((opt, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => handleP3Answer(opt)}
+                          className="p-4 rounded-xl border border-slate-200 hover:border-eai-orange hover:bg-orange-50/50 text-slate-800 font-bold text-sm text-left transition-all shadow-sm flex items-center justify-between active:scale-95"
+                        >
+                          <span>{opt}</span>
+                          <i className="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    /* Feedback Display */
+                    <div className={`p-5 rounded-xl border text-left space-y-3 ${
+                      p3Feedback.correct
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                        : 'bg-rose-50 border-rose-200 text-rose-900'
+                    }`}>
+                      <div className="flex items-center gap-2 font-bold text-base">
+                        <i className={`fa-solid ${p3Feedback.correct ? 'fa-circle-check text-emerald-600' : 'fa-circle-xmark text-rose-600'}`}></i>
+                        <span>{p3Feedback.correct ? 'Análise Perfeita!' : 'Reflexão Pedagógica'}</span>
+                      </div>
+
+                      <p className="text-sm leading-relaxed font-medium">{p3Feedback.message}</p>
+
+                      <div className="pt-2 flex justify-end">
+                        <button
+                          onClick={nextP3Card}
+                          className="bg-eai-navy hover:bg-slate-800 text-white font-bold py-2.5 px-6 rounded-xl shadow text-sm flex items-center gap-2"
+                        >
+                          <span>{p3Index < p3Scenarios.length - 1 ? 'Próximo cenário' : 'Concluir Fase 3'}</span>
+                          <i className="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {}
+            {screen === 'phase4' && (
+              <div className="max-w-2xl mx-auto space-y-6 card-transition py-4">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-500 px-1">
+                  <span>FASE 4: RECONSTRUA O PERCURSO</span>
+                  <span>Ordenação Didática das Seções</span>
+                </div>
+
+                <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xl space-y-6">
+                  <div>
+                    <h2 className="font-display font-bold text-xl text-eai-navy mb-1">
+                      Organize as Seções no Percurso Pedagógico
+                    </h2>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Ordene os cards considerando o movimento didático: 
+                      <strong> Introdução → Narrativa → Prática → Reflexão → Aprofundamento → Continuidade</strong>.
+                    </p>
+                  </div>
+
+                  {/* Reordering List */}
+                  <div className="space-y-2">
+                    {p4Items.map((item, index) => (
+                      <div
+                        key={item.id}
+                        className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-all ${
+                          p4Checked && p4IsCorrect
+                            ? 'bg-emerald-50/80 border-emerald-300 text-emerald-950'
+                            : 'bg-slate-50 border-slate-200 text-slate-800'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="w-7 h-7 rounded-lg bg-eai-navy text-white font-bold text-xs flex items-center justify-center flex-shrink-0">
+                            {index + 1}
+                          </span>
+                          <i className={`fa-solid ${item.icon} text-eai-orange text-lg`}></i>
+                          <span className="font-bold text-sm">{item.name}</span>
+                        </div>
+
+                        {/* Reorder Buttons for Keyboard & Mobile Accessibility */}
+                        {!p4Checked && (
+                          <div className="flex items-center gap-1">
+                            <button
+                              disabled={index === 0}
+                              onClick={() => moveP4Item(index, 'up')}
+                              className="p-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-white text-slate-700 text-xs"
+                              title="Mover para cima"
+                            >
+                              <i className="fa-solid fa-arrow-up"></i>
+                            </button>
+                            <button
+                              disabled={index === p4Items.length - 1}
+                              onClick={() => moveP4Item(index, 'down')}
+                              className="p-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-white text-slate-700 text-xs"
+                              title="Mover para baixo"
+                            >
+                              <i className="fa-solid fa-arrow-down"></i>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Feedback or Action */}
+                  {!p4Checked ? (
+                    <button
+                      onClick={checkP4Sequence}
+                      className="w-full bg-eai-orange hover:bg-eai-orangeHover text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm flex items-center justify-center gap-2"
+                    >
+                      <i className="fa-solid fa-check-double"></i> Verificar Percurso
+                    </button>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className={`p-4 rounded-xl border text-sm leading-relaxed ${
+                        p4IsCorrect ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-amber-50 border-amber-200 text-amber-900'
+                      }`}>
+                        <div className="font-bold mb-1 flex items-center gap-2">
+                          <i className="fa-solid fa-circle-info"></i> Observação Pedagógica Formativa
+                        </div>
+                        <p className="mb-2">{p4Feedback.message}</p>
+                        <p className="text-xs italic text-slate-600 bg-white/60 p-3 rounded-lg border border-slate-200">
+                          “Essa sequência representa uma organização didática possível e coerente para compreender o percurso. Em capítulos concretos, os elementos podem dialogar de maneiras diferentes conforme a intencionalidade pedagógica. O mais importante é reconhecer a função de cada Seção.”
+                        </p>
+                      </div>
+
+                      <div className="flex justify-end">
+                        <button
+                          onClick={finishP4}
+                          className="bg-eai-navy hover:bg-slate-800 text-white font-bold py-3 px-8 rounded-xl shadow text-sm flex items-center gap-2"
+                        >
+                          <span>Avançar para a Missão Final</span>
+                          <i className="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {}
+            {screen === 'phase5' && p5Questions.length > 0 && (
+              <div className="max-w-2xl mx-auto space-y-6 card-transition py-4">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-500 px-1">
+                  <span>FASE 5: MISSÃO FINAL (Consolidação Rápida)</span>
+                  <span>Desafio {p5Index + 1} de {p5Questions.length}</span>
+                </div>
+
+                <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xl space-y-6">
+                  <div className="bg-eai-navy text-white p-6 rounded-xl shadow space-y-2 text-center">
+                    <i className="fa-solid fa-bolt text-eai-amber text-2xl mb-1"></i>
+                    <h2 className="font-display font-bold text-xl sm:text-2xl">
+                      {p5Questions[p5Index].question}
+                    </h2>
+                  </div>
+
+                  {!p5Answered ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {p5Questions[p5Index].shuffledOptions.map((opt, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => handleP5Answer(opt)}
+                          className="p-4 rounded-xl border border-slate-200 hover:border-eai-orange hover:bg-orange-50/50 text-slate-800 font-bold text-sm text-left transition-all shadow-sm flex items-center justify-between active:scale-95"
+                        >
+                          <span>{opt}</span>
+                          <i className="fa-solid fa-arrow-right text-xs text-slate-400"></i>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className={`p-5 rounded-xl border text-left space-y-3 ${
+                      p5Feedback.correct
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                        : 'bg-rose-50 border-rose-200 text-rose-900'
+                    }`}>
+                      <div className="flex items-center gap-2 font-bold text-base">
+                        <i className={`fa-solid ${p5Feedback.correct ? 'fa-circle-check text-emerald-600' : 'fa-circle-xmark text-rose-600'}`}></i>
+                        <span>{p5Feedback.correct ? 'Correto!' : 'Atenção'}</span>
+                      </div>
+                      <p className="text-sm font-medium">{p5Feedback.message}</p>
+
+                      <div className="pt-2 flex justify-end">
+                        <button
+                          onClick={nextP5Question}
+                          className="bg-eai-navy hover:bg-slate-800 text-white font-bold py-2.5 px-6 rounded-xl shadow text-sm flex items-center gap-2"
+                        >
+                          <span>{p5Index < p5Questions.length - 1 ? 'Próximo desafio' : 'Finalizar Trilha'}</span>
+                          <i className="fa-solid fa-flag-checkered text-xs"></i>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {}
+            {screen === 'result' && (
+              <div className="max-w-3xl mx-auto space-y-6 card-transition py-4 text-center">
+                <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-2xl space-y-6 relative overflow-hidden">
+                  <div className="inline-flex p-4 rounded-full bg-amber-100 text-eai-amber text-4xl mb-2">
+                    <i className="fa-solid fa-award"></i>
+                  </div>
+
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-widest text-slate-400 block mb-1">
+                      {gameMode === 'team' && teamName ? `Resultado da Equipe: ${teamName}` : 'Resultado do Participante'}
+                    </span>
+
+                    {/* Level Seal Title */}
+                    <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-eai-navy">
+                      {scorePercentage < 60 && 'EXPLORADOR DA TRILHA EAI'}
+                      {scorePercentage >= 60 && scorePercentage < 85 && 'MEDIADOR DA TRILHA EAI'}
+                      {scorePercentage >= 85 && 'ESPECIALISTA DA TRILHA EAI'}
+                    </h2>
+                  </div>
+
+                  {/* Score Stats Badge Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-lg mx-auto py-2">
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <span className="text-xs font-semibold text-slate-500 block">Pontuação</span>
+                      <span className="font-display font-bold text-2xl text-eai-orange">{score}</span>
+                    </div>
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <span className="text-xs font-semibold text-slate-500 block">Aproveitamento</span>
+                      <span className="font-display font-bold text-2xl text-eai-teal">{scorePercentage}%</span>
+                    </div>
+                    <div className="col-span-2 sm:col-span-1 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <span className="text-xs font-semibold text-slate-500 block">Fases Concluídas</span>
+                      <span className="font-display font-bold text-2xl text-emerald-600">5 / 5</span>
+                    </div>
+                  </div>
+
+                  {/* Pedagogical Message */}
+                  <div className="p-6 rounded-xl bg-orange-50/70 border border-orange-200 text-eai-navy text-sm sm:text-base leading-relaxed font-medium max-w-2xl mx-auto">
+                    {scorePercentage < 60 && (
+                      <p>
+                        “Você iniciou a exploração do percurso pedagógico. Retome os propósitos das Seções e dos Boxes e observe como cada elemento contribui para a experiência de aprendizagem.”
+                      </p>
+                    )}
+                    {scorePercentage >= 60 && scorePercentage < 85 && (
+                      <p>
+                        “Você já reconhece grande parte dos elementos e de suas funções. Continue relacionando cada proposta à intencionalidade pedagógica.”
+                      </p>
+                    )}
+                    {scorePercentage >= 85 && (
+                      <p>
+                        “Você demonstrou compreender como as Seções estruturam o percurso e como os Boxes apoiam, ampliam e aprofundam as experiências pedagógicas.”
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button
+                      onClick={() => { setScreen('review'); triggerSound('click'); }}
+                      className="w-full sm:w-auto bg-eai-navy hover:bg-slate-800 text-white font-bold py-3.5 px-6 rounded-xl shadow transition-all text-sm flex items-center justify-center gap-2"
+                    >
+                      <i className="fa-solid fa-book-open-reader"></i> Conhecer Todas as Seções e Boxes
+                    </button>
+
+                    <button
+                      onClick={resetAllProgress}
+                      className="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold py-3.5 px-6 rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                    >
+                      <i className="fa-solid fa-rotate-right"></i> Jogar Novamente
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {}
+            {screen === 'review' && (
+              <div className="max-w-5xl mx-auto space-y-6 card-transition py-4">
+                <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xl space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                      <h2 className="font-display font-bold text-2xl text-eai-navy">Guia Pedagógico de Referência</h2>
+                      <p className="text-xs text-slate-500">Síntese de Seções e Boxes da Metodologia EAI</p>
+                    </div>
+                    <button
+                      onClick={() => { setScreen('result'); triggerSound('click'); }}
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-lg text-xs flex items-center gap-1.5 self-start sm:self-auto"
+                    >
+                      <i className="fa-solid fa-arrow-left"></i> Voltar ao Resultado
+                    </button>
+                  </div>
+
+                  {/* 2 Column Grid: SEÇÕES vs BOXES */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Column 1: SEÇÕES */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 border-b-2 border-indigo-500 pb-2 text-indigo-900 font-display font-bold text-lg">
+                        <i className="fa-solid fa-layer-group text-indigo-600"></i>
+                        <span>SEÇÕES (Estruturam o Percurso)</span>
+                      </div>
+
+                      <div className="space-y-3">
+                        {PEDAGOGY_DATA.sections.map(sec => (
+                          <div key={sec.id} className="p-4 rounded-xl bg-indigo-50/40 border border-indigo-100 space-y-2">
+                            <div className="flex items-center gap-3">
+                              <i className={`fa-solid ${sec.icon} text-indigo-600 text-lg`}></i>
+                              <h3 className="font-bold text-sm text-indigo-950">{sec.name}</h3>
+                            </div>
+                            <p className="text-xs text-slate-600 leading-relaxed">{sec.purpose}</p>
+                            <div className="flex flex-wrap gap-1 pt-1">
+                              {sec.keywords.map((kw, idx) => (
+                                <span key={idx} className="px-2 py-0.5 rounded bg-white border border-indigo-200 text-[10px] text-indigo-800 font-medium">
+                                  #{kw}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Column 2: BOXES */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 border-b-2 border-amber-500 pb-2 text-amber-900 font-display font-bold text-lg">
+                        <i className="fa-solid fa-box-open text-amber-600"></i>
+                        <span>BOXES (Apoiam e Aprofundam)</span>
+                      </div>
+
+                      <div className="space-y-3">
+                        {PEDAGOGY_DATA.boxes.map(box => (
+                          <div key={box.id} className="p-4 rounded-xl bg-amber-50/40 border border-amber-100 space-y-2">
+                            <div className="flex items-center gap-3">
+                              <i className={`fa-solid ${box.icon} text-amber-600 text-lg`}></i>
+                              <h3 className="font-bold text-sm text-amber-950">{box.name}</h3>
+                            </div>
+                            <p className="text-xs text-slate-600 leading-relaxed">{box.purpose}</p>
+                            <div className="flex flex-wrap gap-1 pt-1">
+                              {box.keywords.map((kw, idx) => (
+                                <span key={idx} className="px-2 py-0.5 rounded bg-white border border-amber-200 text-[10px] text-amber-800 font-medium">
+                                  #{kw}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 flex justify-center">
+                    <button
+                      onClick={() => { setScreen('welcome'); triggerSound('click'); }}
+                      className="bg-eai-navy hover:bg-slate-800 text-white font-bold py-3 px-8 rounded-xl shadow text-sm flex items-center gap-2"
+                    >
+                      <i className="fa-solid fa-house"></i> Voltar ao Início
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+
+          {}
+          <footer className="bg-slate-900 text-slate-400 text-xs py-4 px-4 text-center border-t border-slate-800">
+            <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+              <span>TRILHA EAI — Seções e Boxes em Ação</span>
+              <span>Formação Continuada de Professores • Instituto Hortense</span>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
